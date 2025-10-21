@@ -110,7 +110,7 @@ const Members = () => {
                   <li>• Career guidance services</li>
                   <li>• Discounted event tickets</li>
                 </ul>
-                <p className="text-center font-bold text-foreground">£100/year</p>
+                <p className="text-center font-bold text-foreground">£75/year</p>
               </CardContent>
             </Card>
 

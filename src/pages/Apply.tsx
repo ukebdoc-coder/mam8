@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 const Apply = () => {
   const { toast } = useToast();
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreedToTerms) {
       toast({
@@ -25,10 +26,110 @@ const Apply = () => {
       });
       return;
     }
-    toast({
-      title: "Application Submitted!",
-      description: "We'll review your application and contact you within 5 business days.",
-    });
+
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      dob: formData.get("dob"),
+      nationality: formData.get("nationality"),
+      address: formData.get("address"),
+      city: formData.get("city"),
+      postcode: formData.get("postcode"),
+      country: formData.get("country"),
+      qualification: formData.get("qualification"),
+      field: formData.get("field"),
+      institution: formData.get("institution"),
+      yearCompleted: formData.get("yearCompleted"),
+      experience: formData.get("experience"),
+      currentRole: formData.get("currentRole"),
+      employer: formData.get("employer"),
+      route: formData.get("route"),
+      startingLevel: formData.get("startingLevel"),
+      studyMode: formData.get("studyMode"),
+      examSession: formData.get("examSession"),
+      exemptionDetails: formData.get("exemptionDetails"),
+      comments: formData.get("comments"),
+    };
+
+    const emailHtml = `
+      <h2>New Application Submission</h2>
+
+      <h3>Personal Information</h3>
+      <p><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+      <p><strong>Email:</strong> ${data.email}</p>
+      <p><strong>Phone:</strong> ${data.phone}</p>
+      <p><strong>Date of Birth:</strong> ${data.dob}</p>
+      <p><strong>Nationality:</strong> ${data.nationality}</p>
+
+      <h3>Address</h3>
+      <p><strong>Street:</strong> ${data.address}</p>
+      <p><strong>City:</strong> ${data.city}</p>
+      <p><strong>Postcode:</strong> ${data.postcode}</p>
+      <p><strong>Country:</strong> ${data.country}</p>
+
+      <h3>Educational Background</h3>
+      <p><strong>Highest Qualification:</strong> ${data.qualification}</p>
+      <p><strong>Field of Study:</strong> ${data.field}</p>
+      <p><strong>Institution:</strong> ${data.institution}</p>
+      <p><strong>Year Completed:</strong> ${data.yearCompleted}</p>
+
+      <h3>Professional Experience</h3>
+      <p><strong>Years of Experience:</strong> ${data.experience}</p>
+      <p><strong>Current Role:</strong> ${data.currentRole || 'N/A'}</p>
+      <p><strong>Employer:</strong> ${data.employer || 'N/A'}</p>
+
+      <h3>Application Details</h3>
+      <p><strong>Study Route:</strong> ${data.route}</p>
+      <p><strong>Starting Level:</strong> ${data.startingLevel}</p>
+      <p><strong>Study Mode:</strong> ${data.studyMode}</p>
+      <p><strong>Exam Session:</strong> ${data.examSession}</p>
+
+      <h3>Additional Information</h3>
+      <p><strong>Exemption Details:</strong> ${data.exemptionDetails || 'N/A'}</p>
+      <p><strong>Comments:</strong> ${data.comments || 'N/A'}</p>
+    `;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            to: "info@iama.org.uk",
+            subject: `New Application: ${data.firstName} ${data.lastName}`,
+            html: emailHtml,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: "Application Submitted!",
+          description: "We'll review your application and contact you within 5 business days.",
+        });
+        (e.target as HTMLFormElement).reset();
+        setAgreedToTerms(false);
+      } else {
+        throw new Error("Failed to send application");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit application. Please try again or email us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -421,9 +522,9 @@ const Apply = () => {
                       </Label>
                     </div>
 
-                    <Button type="submit" size="lg" className="w-full bg-primary hover:bg-accent">
+                    <Button type="submit" size="lg" className="w-full bg-primary hover:bg-accent" disabled={isSubmitting}>
                       <Send className="w-5 h-5 mr-2" />
-                      Submit Application
+                      {isSubmitting ? "Submitting..." : "Submit Application"}
                     </Button>
                   </div>
                 </form>

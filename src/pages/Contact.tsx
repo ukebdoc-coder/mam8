@@ -5,18 +5,68 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const name = formData.get("contactName") as string;
+    const email = formData.get("contactEmail") as string;
+    const subject = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    const emailHtml = `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Message:</strong></p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            to: "info@iama.org.uk",
+            subject: `Contact Form: ${subject}`,
+            html: emailHtml,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent!",
+          description: "We'll get back to you within 24 hours.",
+        });
+        (e.target as HTMLFormElement).reset();
+      } else {
+        throw new Error("Failed to send email");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again or email us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,9 +106,9 @@ const Contact = () => {
                   <Label htmlFor="message">Message *</Label>
                   <Textarea id="message" required className="bg-card border-border min-h-[150px]" />
                 </div>
-                <Button type="submit" size="lg" className="w-full bg-primary hover:bg-accent">
+                <Button type="submit" size="lg" className="w-full bg-primary hover:bg-accent" disabled={isSubmitting}>
                   <Send className="w-5 h-5 mr-2" />
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </div>
@@ -99,7 +149,26 @@ const Contact = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">Office F26 Fairgate House, 205 Kings Road, Tyseley, Birmingham, England, B11 2AA</p>
-                  
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <MessageCircle className="w-5 h-5 mr-2 text-accent" />
+                    WhatsApp
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <a
+                    href="https://wa.me/+447926418380"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Chat with us on WhatsApp
+                  </a>
                 </CardContent>
               </Card>
             </div>

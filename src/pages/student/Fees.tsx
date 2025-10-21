@@ -29,23 +29,15 @@ const Fees = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center pb-2 border-b border-border">
                     <span className="text-muted-foreground">Registration Fee</span>
-                    <span className="font-semibold text-foreground">£150</span>
+                    <span className="font-semibold text-foreground">£75</span>
                   </div>
                   <div className="flex justify-between items-center pb-2 border-b border-border">
-                    <span className="text-muted-foreground">Certificate Level (per paper)</span>
-                    <span className="font-semibold text-foreground">£120</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-border">
-                    <span className="text-muted-foreground">Managerial Level (per paper)</span>
-                    <span className="font-semibold text-foreground">£150</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-border">
-                    <span className="text-muted-foreground">Advanced Level (per paper)</span>
-                    <span className="font-semibold text-foreground">£180</span>
+                    <span className="text-muted-foreground">Examination/Exemption Fee</span>
+                    <span className="font-semibold text-foreground">£55</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Annual Subscription</span>
-                    <span className="font-semibold text-foreground">£100</span>
+                    <span className="font-semibold text-foreground">£75</span>
                   </div>
                 </div>
               </CardContent>
