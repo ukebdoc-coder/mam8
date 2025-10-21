@@ -104,7 +104,7 @@ const Apply = () => {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
-            to: "info@iama.org.uk",
+            to: "ihashirsaqib2008@gmail.com",
             subject: `New Application: ${data.firstName} ${data.lastName}`,
             html: emailHtml,
           }),
